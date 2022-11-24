@@ -5,7 +5,6 @@ param subnetName string
 param userAssignedIdentity object = json(concat('{"', imageBuilderIdentity,'":{}}'))
 param imageName string
 
-
 resource imageBuilder 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14' = {
   name: imageBuilderName
   location: resourceGroup().location
@@ -14,7 +13,7 @@ resource imageBuilder 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14'
     userAssignedIdentities: userAssignedIdentity
   }
   properties:{
-    buildTimeoutInMinutes: 120
+    buildTimeoutInMinutes: 180
     customize: [
       {
         type: 'Shell'
@@ -24,10 +23,18 @@ resource imageBuilder 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14'
             'sudo apt-get install unzip'
             'unzip azhpc-images-master.zip'
             'sed -i "s%./install_nvidiagpudriver.sh%#./install_nvidiagpudriver.sh%g" azhpc-images-master/ubuntu/ubuntu-20.x/ubuntu-20.04-hpc/install.sh'
-            'sed -i "s%$UBUNTU_COMMON_DIR/install_nccl.sh%#$UBUNTU_COMMON_DIR/install_nccl.sh%g" azhpc-images-master/ubuntu/ubuntu-20.x/ubuntu-20.04-hpc/install.sh' 
+            'sed -i \'s%$UBUNTU_COMMON_DIR/install_nccl.sh%#$UBUNTU_COMMON_DIR/install_nccl.sh%g\' azhpc-images-master/ubuntu/ubuntu-20.x/ubuntu-20.04-hpc/install.sh'
             'cd azhpc-images-master/ubuntu/ubuntu-20.x/ubuntu-20.04-hpc/'
-            'sudo ./install.sh'
+            'sudo ./install.sh >> install.log'
         ]
+    }
+    {
+    type: 'Shell'
+    name: 'InstallUpgrades'
+    inline: [
+         'sudo tail -100 install.log'
+         'sleep 100'
+    ]
     }
     ]
     distribute: [{   
@@ -50,6 +57,8 @@ resource imageBuilder 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14'
   }
     validate: {}
     vmProfile: {
+      vmSize: 'Standard_D8ds_v5'
+      osDiskSizeGB: 120
       vnetConfig: {
         subnetId: concat(vnetId, '/subnets/', subnetName)
         }
