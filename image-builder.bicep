@@ -24,17 +24,12 @@ resource imageBuilder 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14'
             'unzip azhpc-images-master.zip'
             'sed -i "s%./install_nvidiagpudriver.sh%#./install_nvidiagpudriver.sh%g" azhpc-images-master/ubuntu/ubuntu-20.x/ubuntu-20.04-hpc/install.sh'
             'sed -i \'s%$UBUNTU_COMMON_DIR/install_nccl.sh%#$UBUNTU_COMMON_DIR/install_nccl.sh%g\' azhpc-images-master/ubuntu/ubuntu-20.x/ubuntu-20.04-hpc/install.sh'
+            'sed -i \'s%rm /etc/%rm -f /etc/%g\' azhpc-images-master/ubuntu/common/install_monitoring_tools.sh'
             'cd azhpc-images-master/ubuntu/ubuntu-20.x/ubuntu-20.04-hpc/'
-            'sudo ./install.sh >> install.log'
+            'sudo ./install.sh'
+            'cd -'
+            'sudo rm -rf azhpc-images-master'
         ]
-    }
-    {
-    type: 'Shell'
-    name: 'InstallUpgrades'
-    inline: [
-         'sudo tail -100 install.log'
-         'sleep 100'
-    ]
     }
     ]
     distribute: [{   
