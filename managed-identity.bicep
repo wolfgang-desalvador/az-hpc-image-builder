@@ -1,11 +1,12 @@
+@description('Manged identity name to be created')
 param managedIdentityName string 
+
+@description('Location for resources, defaults to standard RG location')
+param location string = resourceGroup().location
 
 resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   name: managedIdentityName
-  location: resourceGroup().location
+  location: location
 }
 
-output managedIdentityIds object = {
-  principalId: managedIdentity.properties.principalId
-  id: managedIdentity.id
-}
+output managedIdentityId string = managedIdentity.id

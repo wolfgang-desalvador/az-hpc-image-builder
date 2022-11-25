@@ -1,4 +1,7 @@
+@description('Name of the identity to which the role should be assigned')
 param managedIdentityName string
+
+@description('Name for the role to be assigned')
 param roleName string
 
 
