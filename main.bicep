@@ -1,8 +1,5 @@
-@description('Name of the image to be saved in the resource group.')
-param destinationImageName string
-
-@description('Description of the image to be saved in the resource group.')
-param destinationImageDescription string
+@description('Name of the image builder to be deployed')
+param imageBuilderName string
 
 @description('Name of the gallery to be created in the resource group.')
 param destinationGalleryName string
@@ -10,9 +7,16 @@ param destinationGalleryName string
 @description('Description of the gallery to be created in the resource group.')
 param destinationGalleryDescription string
 
-@description('Name of the image builder to be deployed')
-param imageBuilderName string
+@description('Name of the image to be saved in the resource group.')
+param destinationImageName string
 
+@description('Description of the image to be saved in the resource group.')
+param destinationImageDescription string
+
+@description('Location where to deploy the resources')
+param location string = resourceGroup().location
+
+// Image Builder parameters
 @description('Series of commands to be executed for image customization. Refer to https://learn.microsoft.com/en-us/azure/virtual-machines/linux/image-builder-json?tabs=json%2Cazure-powershell#properties-customize.')
 param customize array = [
   {
@@ -45,7 +49,20 @@ param sourceImage object = {
 @description('HyperV Generation. Gen2 or Gen1. Refer to https://learn.microsoft.com/en-us/azure/virtual-machines/generation-2')
 param VMGen string = 'V2'
 
-@description('Name of the subnet to be deployed in the Virtual Network')
+@description('VM Size to be used for the Azure Image Builder process')
+param vmSize string = 'Standard_D8ds_v5'
+
+// Virtual Network parameters
+@description('Boolean to specify is the virtual network and the network security group needs to be deployed.')
+param deployVirtualNetwork bool = true
+
+@description('Image Builder Virtual Network name')
+param virtualNetworkName string = '${imageBuilderName}-vnet'
+
+@description('Image Builder subnet Network Security Group name')
+param nsgName string = '${imageBuilderName}-nsg'
+
+@description('Name of the subnet to be deployed in the Virtual Network for the Image Builder')
 param subnetName string = 'default'
 
 @description('Address prefix')
@@ -54,18 +71,12 @@ param vnetAddressPrefix string = '10.0.0.0/16'
 @description('Subnet Prefix')
 param subnetPrefix string = '10.0.0.0/24'
 
-@description('VM Size to be used for the Azure Image Builder process')
-param vmSize string = 'Standard_D8ds_v5'
-
-@description('Location where to deploy the resources')
-param location string = resourceGroup().location
-
 // Create the virtual network in the resource group with appropriate NSG
-module vnet 'vnet.bicep' = {
+module vnet 'vnet.bicep' = if (deployVirtualNetwork) {
   name: 'vnet-deployment'
   params: {
-    vnetName: '${imageBuilderName}-vnet'
-    nsgName: '${imageBuilderName}-nsg'
+    vnetName: virtualNetworkName
+    nsgName: nsgName
     subnetName: subnetName
     vnetAddressPrefix: vnetAddressPrefix
     subnetPrefix: subnetPrefix
