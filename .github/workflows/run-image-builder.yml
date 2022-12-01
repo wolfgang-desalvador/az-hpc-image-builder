@@ -12,7 +12,7 @@ on:
       AZURE_SUBSCRIPTION:
         required: true
 concurrency: deployment_environment
-name: Image Builder Bicep
+name: Run Image Builder
 jobs:
   deploy-bicep:
     runs-on: ubuntu-latest
