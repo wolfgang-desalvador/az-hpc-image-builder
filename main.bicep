@@ -165,6 +165,11 @@ module imageGallery 'compute-gallery.bicep' = {
   }
 }
 
+// Get the VNET id
+resource vnetResource 'Microsoft.Network/virtualNetworks@2021-08-01' existing = {
+  name: virtualNetworkName
+}
+
 // Create the image builder
 module imageBuilder 'image-builder.bicep' = {
   name: '${imageBuilderName}-deployment'
@@ -175,7 +180,7 @@ module imageBuilder 'image-builder.bicep' = {
   ]
   params: {
     imageBuilderName: imageBuilderName
-    vnetId: vnet.outputs.vnetId
+    vnetId: vnetResource.id
     subnetName: subnetName
     imageBuilderIdentity: imageBuilderIdentity.outputs.managedIdentityId
     sourceImage: sourceImage
