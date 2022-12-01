@@ -17,7 +17,7 @@ jobs:
       uses: Azure/cli@v1
       with:
          # Specify the script here
-        inlineScript: az image builder cancel --resource-group ${{ secrets.AZURE_RG }} --name imageBuilder
+        inlineScript: az image builder cancel --resource-group ${{ secrets.AZURE_RG }} --name imageBuilder || true
     
     - name: Wait image builder stops
       uses: Azure/cli@v1
