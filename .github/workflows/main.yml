@@ -1,0 +1,42 @@
+on: [push]
+name: Image Builder Bicep
+jobs:
+  deploy-bicep:
+    runs-on: ubuntu-latest
+    steps:
+
+      # Checkout code
+    - uses: actions/checkout@main
+
+      # Log into Azure
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Cancel image builder if in progress
+      uses: Azure/cli@v1
+      with:
+         # Specify the script here
+        inlineScript: az image builder cancel --resource-group ${{ secrets.AZURE_RG }} --name imageBuilder
+    
+    - name: Wait image builder stops
+      uses: Azure/cli@v1
+      with:
+         # Specify the script here
+        inlineScript: az image builder wait --resource-group ${{ secrets.AZURE_RG }} --name imageBuilder --custom "lastRunStatus.runState!='Canceling'"
+         
+    -  name: Delete previous image builder
+       uses: Azure/cli@v1
+       with:
+          # Specify the script here
+         inlineScript: az image builder delete --resource-group ${{ secrets.AZURE_RG }} --name imageBuilder
+    
+      # Deploy Bicep file
+    - name: Deploy Bicep resources
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+        resourceGroupName: ${{ secrets.AZURE_RG }}
+        template: ./main.bicep
+        parameters: 'imageBuilderName=imageBuilder destinationGalleryName=hpcgallery destinationGalleryDescription="HPC Gallery" destinationImageName=ubuntuhpc destinationImageDescription="Ubuntu HPC"'
+        failOnStdErr: false
