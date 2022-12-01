@@ -40,8 +40,8 @@ jobs:
       with:
         subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
         resourceGroupName: ${{ secrets.AZURE_RG }}
-        template: ./image-builder.bicep
-        parameters: 'imageBuilderName=imageBuilder destinationGalleryName=hpcgallery destinationImageName=ubuntuhpc'
+        template: ./main.bicep
+        parameters: 'imageBuilderName=imageBuilder destinationGalleryName=hpcgallery destinationGalleryDescription="HPC Gallery" destinationImageName=ubuntuhpc destinationImageDescription="Ubuntu HPC"'
         failOnStdErr: false
         
     -  name: Run image builder
