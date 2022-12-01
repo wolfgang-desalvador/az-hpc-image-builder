@@ -53,8 +53,6 @@ param virtualNetworkName string = '${imageBuilderName}-vnet'
 @description('Name of the target subnet')
 param subnetName string = 'default'
 
-
-
 // Get the Image Gallery
 resource hpcComputeGallery 'Microsoft.Compute/galleries@2022-03-03' existing = {
   name: destinationGalleryName
