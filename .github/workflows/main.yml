@@ -12,6 +12,7 @@ jobs:
     secrets: inherit
 
   deploy-bicep:
+    steps:
       # Log into Azure
     - uses: azure/login@v1
       with:
