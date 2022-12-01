@@ -14,7 +14,7 @@ on:
 concurrency: deployment_environment
 name: Delete Image Builder
 jobs:
-  deploy-bicep:
+  delete-image-builder:
     runs-on: ubuntu-latest
     steps:
       # Checkout code

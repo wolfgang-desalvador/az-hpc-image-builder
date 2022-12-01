@@ -14,7 +14,7 @@ on:
 concurrency: deployment_environment
 name: Run Image Builder
 jobs:
-  deploy-bicep:
+  run-image-builder:
     runs-on: ubuntu-latest
     steps:
       # Log into Azure
@@ -23,7 +23,7 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
       
       # Run Image Builder
-      -  name: Run image builder
+      - name: Run image builder
        uses: Azure/cli@v1
        with:
           # Specify the script here

@@ -12,6 +12,7 @@ jobs:
     secrets: inherit
 
   deploy-bicep:
+    runs-on: ubuntu-latest
     steps:
       # Log into Azure
     - uses: azure/login@v1
