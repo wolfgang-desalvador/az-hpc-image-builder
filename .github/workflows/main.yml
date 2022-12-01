@@ -27,7 +27,7 @@ jobs:
       uses: Azure/cli@v1
       with:
          # Specify the script here
-        inlineScript: az image builder wait --resource-group ${{ secrets.AZURE_RG }} --name imageBuilder --custom "lastRunStatus.runState!='Canceling'"
+        inlineScript: '! [ $(az image builder show --resource-group ${{ secrets.AZURE_RG }} --name imageBuilder ] || az image builder wait --resource-group ${{ secrets.AZURE_RG }} --name imageBuilder --custom "lastRunStatus.runState!='Canceling'"'
          
     -  name: Delete previous image builder
        uses: Azure/cli@v1
