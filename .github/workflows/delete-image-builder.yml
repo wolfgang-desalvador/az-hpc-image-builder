@@ -11,7 +11,6 @@ on:
         required: true
       AZURE_SUBSCRIPTION:
         required: true
-concurrency: deployment_environment
 name: Delete Image Builder
 jobs:
   delete-image-builder:

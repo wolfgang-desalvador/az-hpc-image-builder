@@ -11,21 +11,20 @@ on:
         required: true
       AZURE_SUBSCRIPTION:
         required: true
-concurrency: deployment_environment
 name: Run Image Builder
 jobs:
   run-image-builder:
     runs-on: ubuntu-latest
     steps:
       # Log into Azure
-      - uses: azure/login@v1
+    - uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
       
       # Run Image Builder
-      - name: Run image builder
-       uses: Azure/cli@v1
-       with:
-          # Specify the script here
-         inlineScript: az image builder run --resource-group ${{ secrets.AZURE_RG }} --name ${{ inputs.image-builder-name }}
+    - name: Run image builder
+      uses: Azure/cli@v1
+      with:
+         # Specify the script here
+        inlineScript: az image builder run --resource-group ${{ secrets.AZURE_RG }} --name ${{ inputs.image-builder-name }}
     
