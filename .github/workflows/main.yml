@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-    - master
+    - main
 name: Image Builder Bicep
 jobs:
   deploy-bicep:
