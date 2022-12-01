@@ -12,6 +12,7 @@ jobs:
     secrets: inherit
 
   deploy-bicep:
+    needs: delete-image-builder
     runs-on: ubuntu-latest
     steps:
       # Checkout code
@@ -33,6 +34,7 @@ jobs:
         failOnStdErr: false
         
   run-builder:
+    needs: [deploy-bicep, delete-image-builder]
     uses: ./.github/workflows/delete-image-builder.yml
     with:
       image-builder-name: 'imageBuilder'
