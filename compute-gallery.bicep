@@ -51,5 +51,3 @@ resource hpcImage 'Microsoft.Compute/galleries/images@2022-03-03' = {
     osType: 'Linux'
   }
 }
-
-output hpcComputeGalleryImageId string = hpcImage.id

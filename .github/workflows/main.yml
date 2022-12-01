@@ -5,36 +5,18 @@ on:
 concurrency: deployment_environment
 name: Image Builder Bicep
 jobs:
+  delete-image-builder:
+    uses: ./.github/workflows/delete-image-builder.yml
+    with:
+      image-builder-name: 'imageBuilder'
+    secrets: inherit
+    
   deploy-bicep:
-    runs-on: ubuntu-latest
-    steps:
-
-      # Checkout code
-    - uses: actions/checkout@main
-
       # Log into Azure
-    - uses: azure/login@v1
+      - uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-    
-    - name: Cancel image builder if in progress
-      uses: Azure/cli@v1
-      with:
-         # Specify the script here
-        inlineScript: az image builder cancel --resource-group ${{ secrets.AZURE_RG }} --name imageBuilder || true
-    
-    - name: Wait image builder stops
-      uses: Azure/cli@v1
-      with:
-         # Specify the script here
-        inlineScript: (az image builder show --resource-group ${{ secrets.AZURE_RG }} --name imageBuilder && az image builder wait --resource-group ${{ secrets.AZURE_RG }} --name imageBuilder --custom "lastRunStatus.runState!='Canceling'") || true
-        
-    -  name: Delete previous image builder
-       uses: Azure/cli@v1
-       with:
-          # Specify the script here
-         inlineScript: az image builder delete --resource-group ${{ secrets.AZURE_RG }} --name imageBuilder
-    
+
       # Deploy Bicep file
     - name: Deploy Bicep resources
       uses: azure/arm-deploy@v1
@@ -45,8 +27,8 @@ jobs:
         parameters: 'imageBuilderName=imageBuilder destinationGalleryName=hpcgallery destinationImageName=ubuntuhpc'
         failOnStdErr: false
         
-    -  name: Run image builder
-       uses: Azure/cli@v1
-       with:
-          # Specify the script here
-         inlineScript: az image builder run --resource-group ${{ secrets.AZURE_RG }} --name imageBuilder
+  run-builder:
+    uses: ./.github/workflows/delete-image-builder.yml
+    with:
+      image-builder-name: 'imageBuilder'
+    secrets: inherit

@@ -1,0 +1,31 @@
+on:
+  workflow_call:
+    inputs:
+      image-builder-name:
+        required: true
+        type: string
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+      AZURE_RG:
+        required: true
+      AZURE_SUBSCRIPTION:
+        required: true
+concurrency: deployment_environment
+name: Image Builder Bicep
+jobs:
+  deploy-bicep:
+    runs-on: ubuntu-latest
+    steps:
+      # Log into Azure
+      - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      # Run Image Builder
+      -  name: Run image builder
+       uses: Azure/cli@v1
+       with:
+          # Specify the script here
+         inlineScript: az image builder run --resource-group ${{ secrets.AZURE_RG }} --name ${{ inputs.image-builder-name }}
+    

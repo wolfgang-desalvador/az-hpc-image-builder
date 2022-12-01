@@ -1,11 +1,11 @@
-@description('Name of the image to be saved in the resource group.')
-param destinationImageName string
+@description('Image builder name')
+param imageBuilderName string
 
 @description('Name of the gallery to be created in the resource group.')
 param destinationGalleryName string
 
-@description('Image builder name')
-param imageBuilderName string
+@description('Name of the image to be saved in the resource group.')
+param destinationImageName string
 
 @description('Image Builder identity name')
 param managedIdentityName string = '${imageBuilderName}-identity'
@@ -53,9 +53,17 @@ param virtualNetworkName string = '${imageBuilderName}-vnet'
 @description('Name of the target subnet')
 param subnetName string = 'default'
 
+
+
 // Get the Image Gallery
-resource imageGallery 'Microsoft.Compute/galleries/images@2022-03-03' existing = {
+resource hpcComputeGallery 'Microsoft.Compute/galleries@2022-03-03' existing = {
   name: destinationGalleryName
+}
+
+// Get the Image
+resource imageName 'Microsoft.Compute/galleries/images@2022-03-03' existing = {
+  name: destinationImageName
+  parent: hpcComputeGallery
 }
 
 // Get the VNET
@@ -64,12 +72,16 @@ resource vNet 'Microsoft.Network/virtualNetworks@2021-08-01' existing = {
 }
 
 // Get Managed Identity
-resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' existing = {
   name: managedIdentityName
-  location: location
 }
 
 resource imageBuilder 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14' = {
+  dependsOn: [
+    vNet
+    managedIdentity
+    imageName
+  ]
   name: imageBuilderName
   location: location
   identity: {
@@ -81,7 +93,7 @@ resource imageBuilder 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14'
     customize: customize
     distribute: [ {
         type: 'SharedImage'
-        galleryImageId: imageGallery.id
+        galleryImageId: imageName.id
         replicationRegions: [
           location
         ]
