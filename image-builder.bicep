@@ -36,14 +36,13 @@ resource imageBuilder 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14'
     userAssignedIdentities: userAssignedIdentityObject
   }
   properties: {
-    buildTimeoutInMinutes: 180
+    buildTimeoutInMinutes: 120
     customize: customize
     distribute: distribute
     source: sourceImage
     validate: {}
     vmProfile: {
       vmSize: vmSize
-      osDiskSizeGB: 120
       vnetConfig: {
         subnetId: concat(vnetId, '/subnets/', subnetName)
       }
