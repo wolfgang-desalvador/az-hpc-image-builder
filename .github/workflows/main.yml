@@ -2,6 +2,7 @@ on:
   push:
     branches:
     - main
+concurrency: deployment_environment
 name: Image Builder Bicep
 jobs:
   deploy-bicep:

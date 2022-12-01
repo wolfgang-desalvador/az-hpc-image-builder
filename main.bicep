@@ -10,33 +10,16 @@ param destinationGalleryDescription string
 @description('Name of the image to be saved in the resource group.')
 param destinationImageName string
 
+@description('Name of the image builder managed identity')
+param imageBuilderIdentityName string = '${imageBuilderName}-identity'
+
 @description('Description of the image to be saved in the resource group.')
 param destinationImageDescription string
 
 @description('Location where to deploy the resources')
 param location string = resourceGroup().location
 
-// Image Builder parameters
-@description('Series of commands to be executed for image customization. Refer to https://learn.microsoft.com/en-us/azure/virtual-machines/linux/image-builder-json?tabs=json%2Cazure-powershell#properties-customize.')
-param customize array = [
-  {
-    type: 'Shell'
-    name: 'InstallUpgrades'
-    inline: [
-      'wget https://codeload.github.com/Azure/azhpc-images/zip/refs/heads/master -O azhpc-images-master.zip'
-      'sudo apt-get install unzip'
-      'unzip azhpc-images-master.zip'
-      'sed -i "s%./install_nvidiagpudriver.sh%#./install_nvidiagpudriver.sh%g" azhpc-images-master/ubuntu/ubuntu-20.x/ubuntu-20.04-hpc/install.sh'
-      'sed -i \'s%$UBUNTU_COMMON_DIR/install_nccl.sh%#$UBUNTU_COMMON_DIR/install_nccl.sh%g\' azhpc-images-master/ubuntu/ubuntu-20.x/ubuntu-20.04-hpc/install.sh'
-      'sed -i \'s%rm /etc/%rm -f /etc/%g\' azhpc-images-master/ubuntu/common/install_monitoring_tools.sh'
-      'cd azhpc-images-master/ubuntu/ubuntu-20.x/ubuntu-20.04-hpc/'
-      'sudo ./install.sh'
-      'cd -'
-      'sudo rm -rf azhpc-images-master'
-    ]
-  }
-]
-
+// Image parameters
 @description('Source image to be customized')
 param sourceImage object = {
   type: 'PlatformImage'
@@ -48,9 +31,6 @@ param sourceImage object = {
 
 @description('HyperV Generation. Gen2 or Gen1. Refer to https://learn.microsoft.com/en-us/azure/virtual-machines/generation-2')
 param VMGen string = 'V2'
-
-@description('VM Size to be used for the Azure Image Builder process')
-param vmSize string = 'Standard_D8ds_v5'
 
 // Virtual Network parameters
 @description('Boolean to specify is the virtual network and the network security group needs to be deployed.')
@@ -119,7 +99,7 @@ module imageBuilderCreatorRole 'custom-role.bicep' = {
 module imageBuilderIdentity 'managed-identity.bicep' = {
   name: 'image-builer-identity-deployment'
   params: {
-    managedIdentityName: '${imageBuilderName}-identity'
+    managedIdentityName: imageBuilderIdentityName
     location: location
   }
 }
@@ -132,7 +112,7 @@ module imageBuilderNetworkRoleAssignment 'custom-role-assignment.bicep' = {
   ]
   name: '${imageBuilderName}-network-role-assignment-deployment'
   params: {
-    managedIdentityName: '${imageBuilderName}-identity'
+    managedIdentityName: imageBuilderIdentityName
     roleName: imageBuilderNetworkRole.outputs.roleName
   }
 }
@@ -144,7 +124,7 @@ module imageBuilderCreatorRoleAssignment 'custom-role-assignment.bicep' = {
     imageBuilderIdentity
   ]
   params: {
-    managedIdentityName: '${imageBuilderName}-identity'
+    managedIdentityName: imageBuilderIdentityName
     roleName: imageBuilderCreatorRole.outputs.roleName
   }
 }
@@ -165,11 +145,6 @@ module imageGallery 'compute-gallery.bicep' = {
   }
 }
 
-// Get the VNET id
-resource vnetResource 'Microsoft.Network/virtualNetworks@2021-08-01' existing = {
-  name: virtualNetworkName
-}
-
 // Create the image builder
 module imageBuilder 'image-builder.bicep' = {
   name: '${imageBuilderName}-deployment'
@@ -179,22 +154,13 @@ module imageBuilder 'image-builder.bicep' = {
     imageGallery
   ]
   params: {
+    destinationGalleryName: destinationGalleryName
+    destinationImageName: destinationImageName
     imageBuilderName: imageBuilderName
-    vnetId: vnetResource.id
-    subnetName: subnetName
-    imageBuilderIdentity: imageBuilderIdentity.outputs.managedIdentityId
+    virtualNetworkName: virtualNetworkName
     sourceImage: sourceImage
-    vmSize: vmSize
-    customize: customize
-    distribute: [ {
-        type: 'SharedImage'
-        galleryImageId: imageGallery.outputs.hpcComputeGalleryImageId
-        replicationRegions: [
-          location
-        ]
-        runOutputName: destinationImageName
-      }
-    ]
+    subnetName: subnetName
+    managedIdentityName: imageBuilderIdentityName
     location: location
   }
 }
