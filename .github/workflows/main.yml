@@ -40,3 +40,9 @@ jobs:
         template: ./main.bicep
         parameters: 'imageBuilderName=imageBuilder destinationGalleryName=hpcgallery destinationGalleryDescription="HPC Gallery" destinationImageName=ubuntuhpc destinationImageDescription="Ubuntu HPC"'
         failOnStdErr: false
+        
+    -  name: Run image builder
+       uses: Azure/cli@v1
+       with:
+          # Specify the script here
+         inlineScript: az image builder run --resource-group ${{ secrets.AZURE_RG }} --name imageBuilder
