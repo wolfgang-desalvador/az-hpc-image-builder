@@ -9,7 +9,7 @@ param roleDescription string
 
 
 resource role 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
-  name: guid(subscription().subscriptionId, roleName)
+  name: guid(subscription().subscriptionId, resourceGroup().id, roleName)
   properties: {
     assignableScopes: [
       resourceGroup().id
