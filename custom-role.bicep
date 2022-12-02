@@ -26,7 +26,7 @@ resource role 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
         ]
       }
     ]
-    roleName: roleName
+    roleName: concat(roleName, '-', guid(subscription().id, resourceGroup().id))
   }
 }
 
