@@ -7,9 +7,11 @@ param allowedActions array
 @description('Role description')
 param roleDescription string
 
+@description('Role name GUID.')
+param roleNameGUID string = guid(subscription().subscriptionId, resourceGroup().id, roleName)
 
 resource role 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
-  name: guid(subscription().subscriptionId, resourceGroup().id, roleName)
+  name: roleNameGUID
   properties: {
     assignableScopes: [
       resourceGroup().id
@@ -26,9 +28,9 @@ resource role 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
         ]
       }
     ]
-    roleName: concat(roleName, '-', guid(subscription().id, resourceGroup().id))
+    roleName: concat(roleName, '-', roleNameGUID)
   }
 }
 
 output roleId string = role.id
-output roleName string = guid(subscription().id, roleName)
+output roleName string = concat(roleName, '-', roleNameGUID)
