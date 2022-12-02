@@ -32,7 +32,7 @@ jobs:
         
   run-builder:
     needs: [deploy-bicep, delete-image-builder]
-    uses: ./.github/workflows/delete-image-builder.yml
+    uses: ./.github/workflows/run-image-builder.yml
     with:
       image-builder-name: 'imageBuilder'
     secrets: inherit
