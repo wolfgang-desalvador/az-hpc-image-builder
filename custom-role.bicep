@@ -33,4 +33,4 @@ resource role 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
 }
 
 output roleId string = role.id
-output roleName string = concat(roleName, '-', roleNameGUID)
+output roleName string = roleNameGUID
