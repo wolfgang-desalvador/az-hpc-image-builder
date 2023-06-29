@@ -22,6 +22,9 @@ param imagePublisher string
 @description('Custom image SKU')
 param imageSKU string
 
+@description('Custom image Plan')
+param imagePlan object
+
 @description('Custom image generation')
 param VMGen string
 
@@ -47,6 +50,7 @@ resource hpcImage 'Microsoft.Compute/galleries/images@2022-03-03' = {
       publisher: imagePublisher
       sku: imageSKU
     }
+    purchasePlan: imagePlan
     osState: 'Generalized'
     osType: 'Linux'
   }

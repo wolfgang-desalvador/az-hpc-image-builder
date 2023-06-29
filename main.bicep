@@ -23,11 +23,17 @@ param location string = resourceGroup().location
 @description('Source image to be customized')
 param sourceImage object = {
   type: 'PlatformImage'
-  publisher: 'Canonical'
-  offer: '0001-com-ubuntu-server-focal'
-  sku: '20_04-lts-gen2'
-  version: 'latest'
+  publisher: 'almalinux'
+  offer: 'almalinux-hpc'
+  sku: '8_7-hpc-gen2'
+  version: '8.7.2023060101'
+  planInfo: {
+    planName: '8_7-hpc-gen2'
+    planProduct: 'almalinux-hpc'
+    planPublisher: 'almalinux'
+  }
 }
+
 
 @description('HyperV Generation. Gen2 or Gen1. Refer to https://learn.microsoft.com/en-us/azure/virtual-machines/generation-2')
 param VMGen string = 'V2'
@@ -138,6 +144,11 @@ module imageGallery 'compute-gallery.bicep' = {
     imageOffer: sourceImage.offer
     imagePublisher: sourceImage.publisher
     imageSKU: sourceImage.sku
+    imagePlan: {
+      name: sourceImage.plan.name
+      product: sourceImage.plan.product
+      publisher: sourceImage.plan.publisher
+    }
     galleryName: destinationGalleryName
     galleryDescription: destinationGalleryDescription
     location: location
@@ -162,5 +173,14 @@ module imageBuilder 'image-builder.bicep' = {
     subnetName: subnetName
     managedIdentityName: imageBuilderIdentityName
     location: location
+    customize:  [
+      {
+        type: 'Shell'
+        name: 'InstallUpgrades'
+        inline: [
+       
+        ]
+      }
+    ]
   }
 }
