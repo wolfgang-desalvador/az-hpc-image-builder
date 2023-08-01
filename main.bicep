@@ -23,14 +23,14 @@ param location string = resourceGroup().location
 @description('Source image to be customized')
 param sourceImage object = {
   type: 'PlatformImage'
-  publisher: 'almalinux'
-  offer: 'almalinux-hpc'
-  sku: '8_7-hpc-gen2'
-  version: '8.7.2023060101'
+  publisher: 'erockyenterprisesoftwarefoundationinc1653071250513'
+  offer: 'rockylinux'
+  sku: 'free'
+  version: '8.7.20230215'
   planInfo: {
-    planName: '8_7-hpc-gen2'
-    planProduct: 'almalinux-hpc'
-    planPublisher: 'almalinux'
+    planName: 'free'
+    planProduct: 'rockylinux'
+    planPublisher: 'erockyenterprisesoftwarefoundationinc1653071250513'
   }
 }
 
@@ -178,7 +178,10 @@ module imageBuilder 'image-builder.bicep' = {
         type: 'Shell'
         name: 'InstallUpgrades'
         inline: [
-       
+          'yum install -y git wget'
+          'git clone '
+          'chmod -r +x azhpc-images'
+          './azhpc-images/rocky/rocky-8.x/rocky-8.7-hpc/install.sh'
         ]
       }
     ]
