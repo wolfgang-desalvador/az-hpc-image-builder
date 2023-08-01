@@ -145,9 +145,9 @@ module imageGallery 'compute-gallery.bicep' = {
     imagePublisher: sourceImage.publisher
     imageSKU: sourceImage.sku
     imagePlan: {
-      name: sourceImage.plan.name
-      product: sourceImage.plan.product
-      publisher: sourceImage.plan.publisher
+      name: sourceImage.planInfo.planName
+      product: sourceImage.planInfo.planProduct
+      publisher: sourceImage.planInfo.planPublisher
     }
     galleryName: destinationGalleryName
     galleryDescription: destinationGalleryDescription
