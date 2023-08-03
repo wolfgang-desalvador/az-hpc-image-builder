@@ -178,10 +178,11 @@ module imageBuilder 'image-builder.bicep' = {
         type: 'Shell'
         name: 'InstallUpgrades'
         inline: [
-          'yum install -y git wget'
-          'git clone '
-          'chmod -r +x azhpc-images'
-          './azhpc-images/rocky/rocky-8.x/rocky-8.7-hpc/install.sh'
+          'yum install -y git wget unzip'
+          'wget https://github.com/wolfgang-desalvador/az-hpc-image-builder/archive/refs/heads/rocky-8.7.zip'
+          'unzip rocky-8.7.zip'
+          'chmod -R +x az-hpc-image-builder-rocky-8.7'
+          './az-hpc-image-builder-rocky-8.7/rocky/rocky-8.x/rocky-8.7-hpc/install.sh'
         ]
       }
     ]
